@@ -4,13 +4,13 @@ import { View, TouchableWithoutFeedback , BackHandler , Text , StyleSheet , Touc
 const CustomKeyboard = () => {
   const [text, setText] = useState('');
   const [vision, setVision] = useState(false);
-  const textInputRef = useRef<TextInput>(null);
-  const handleTextChange = (newText: string) => {
+  const [select , setSelect] = useState({"end": 0, "start": 0});
+  const textInputRef = useRef(null);
+  const handleTextChange = (newText) => {
     setText(newText);
   };
   const handleFocus = () => {
     setVision(true);
-    Keyboard.dismiss();
     
   };
 
@@ -31,14 +31,25 @@ const CustomKeyboard = () => {
   const handleBlur = () => {
     setVision(false);
   };
-  interface CustomButtonProps {
-    title: string;
-    onPress: () => void;
-  }
-  const handlePress = (value: string) => {
-    setText(text + value);
+  const handleSelection = (e) => {
+    console.log(e.nativeEvent.selection);
+    setSelect(e.nativeEvent.selection);
   };
-  const CustomButton: React.FC<CustomButtonProps> = ({ title, onPress }) => (
+
+  const handlePress = ( value ) => {
+    let newValue = value;
+    if(value === '<-') {
+       newValue = text.slice(0, select.start-1) + text.slice(select.end);
+       setSelect({"end" : select.end - 1 , "start" : select.start - 1});
+
+      }
+    else { 
+      newValue = text.slice(0, select.start) + value + text.slice(select.end);
+      setSelect({"end" : select.end + 1 , "start" : select.start + 1});
+    }
+     setText(newValue);
+  };
+  const CustomButton = ({ title, onPress }) => (
     <TouchableOpacity
       style={{
         flex: 1, // Равномерное распределение пространства
@@ -55,11 +66,14 @@ const CustomKeyboard = () => {
   return (
     <TouchableOpacity activeOpacity={1} onPress={() => setVision(false)} style={styles.container}>
         <TextInput
+          selection={select}
           ref={textInputRef}
           style={styles.textInput}
+          showSoftInputOnFocus={false}
           value={text}
           onPressIn={handleFocus}
           onFocus={handleFocus}
+          onSelectionChange={handleSelection}
           onChangeText={handleTextChange}
         />
 {vision && 
@@ -107,7 +121,7 @@ const CustomKeyboard = () => {
         <CustomButton title="x" onPress={() => handlePress('x')} />
         <CustomButton title="y" onPress={() => handlePress('y')} />
         <CustomButton title="z" onPress={() => handlePress('z')} />
-        <CustomButton title="<-" onPress={() => setText(text.slice(0, -1))} />
+        <CustomButton title="<-" onPress={() => handlePress('<-')} />
         </View>
         <View style={{ flexDirection: 'row' , flex: 4 , minWidth: '100%'}}>
         <CustomButton title=" " onPress={() => handlePress(' ')} />

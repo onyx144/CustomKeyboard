@@ -6,7 +6,6 @@
  */
 
 import React , { useState, useRef } from 'react';
-import type { PropsWithChildren } from 'react';
 import CustomKeyboard from './component/Keyboard';
 import {
   SafeAreaView,
@@ -31,13 +30,13 @@ import {
 
 
 
-function App(): JSX.Element {
+function App() {
   const isDarkMode = useColorScheme() === 'dark';
   const [text, setText] = useState('');
   const [vision, setVision] = useState(false);
   const textInputRef = useRef<TextInput>(null);
 
-  const handleTextChange = (newText: string) => {
+  const handleTextChange = (newText) => {
     setText(newText);
   };
   const handleFocus = () => {
